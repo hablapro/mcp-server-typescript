@@ -53,11 +53,11 @@ export abstract class BaseTool {
         z.union([
           z.array(z.union([z.string(), z.number(), z.boolean()])).length(3),
           z.enum(["and", "or"]),
-          z.array(z.unknown()).length(3),
-          z.union([z.string(), z.number(),z.unknown()]),
+          z.array(z.union([z.string(), z.number(), z.boolean()])).length(3),
+          z.union([z.string(), z.number()]),
           z.any()  
         ])
-      ).max(3);
+      );
     return filterExpression;
   }
 
