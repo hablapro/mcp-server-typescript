@@ -207,9 +207,15 @@ async function main() {
     });
   };
 
+  // Health check endpoint (no auth required)
+  app.get('/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok', service: 'mcp-server-typescript', version });
+  });
+
   // Apply basic auth and shared handler to both endpoints
   app.post('/http', basicAuth, handleMcpRequest);
   app.post('/mcp', basicAuth, handleMcpRequest);
+  app.post('/', basicAuth, handleMcpRequest); // Root endpoint for MCP
 
   app.get('/http', handleNotAllowed('GET HTTP'));
   app.get('/mcp', handleNotAllowed('GET MCP'));
