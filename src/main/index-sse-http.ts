@@ -113,6 +113,22 @@ app.use(express.json());
 
 // Basic Auth Middleware
 const basicAuth = (req: Request, res: Response, next: NextFunction) => {
+  // Check for API Key first
+  const apiKey = req.headers['x-api-key'] || req.headers['api-key'];
+  const expectedApiKey = process.env.MCP_API_KEY;
+  
+  if (expectedApiKey && apiKey !== expectedApiKey) {
+    res.status(401).json({
+      jsonrpc: "2.0",
+      error: {
+        code: -32001,
+        message: "Invalid API key"
+      },
+      id: null
+    });
+    return;
+  }
+  
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Basic ')) {
     next();
@@ -216,6 +232,11 @@ const handleNotAllowed = (method: string) => async (req: Request, res: Response)
       id: null
     });
   };
+
+// Health check endpoint (no auth required)
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', service: 'mcp-server-typescript', version });
+});
 
 // Apply basic auth and shared handler to both endpoints
 app.post('/http', basicAuth, handleMcpRequest);
