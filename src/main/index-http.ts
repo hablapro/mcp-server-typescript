@@ -85,6 +85,22 @@ async function main() {
 
   // Basic Auth Middleware
   const basicAuth = (req: Request, res: Response, next: NextFunction) => {
+    // Check for API Key first
+    const apiKey = req.headers['x-api-key'] || req.headers['api-key'];
+    const expectedApiKey = process.env.MCP_API_KEY;
+    
+    if (expectedApiKey && apiKey !== expectedApiKey) {
+      res.status(401).json({
+        jsonrpc: "2.0",
+        error: {
+          code: -32001,
+          message: "Invalid API key"
+        },
+        id: null
+      });
+      return;
+    }
+    
     // Check for Authorization header
     const authHeader = req.headers.authorization;
     console.error(authHeader)
